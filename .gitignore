@@ -1,0 +1,10 @@
+__pycache__
+
+# auth
+credentials.json
+token.json
+.env
+
+*.csv
+*.ipynb
+*test*
