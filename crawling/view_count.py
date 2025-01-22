@@ -130,10 +130,5 @@ class View_Scrapper:
 
 if __name__ == "__main__":
     scrapper = View_Scrapper()
-    links = [
-        "https://www.youtube.com/@CGRN7A/videos",
-        "https://www.youtube.com/@Cheong_Run/videos",
-        "https://www.youtube.com/@Cheong_Run/streams",
-        "https://www.youtube.com/@Cheong_Run/shorts",
-    ]
+    links = ["https://www.youtube.com/@YouTube/videos", "https://www.youtube.com/@GoogleDevelopers/streams"]
     scrapper.add_data(links=links)
