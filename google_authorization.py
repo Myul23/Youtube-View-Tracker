@@ -57,7 +57,7 @@ class GoogleAuth(GoogleAuth):
         return loads(dumps(request.execute()))
 
     def _search_playlists(self, maxResults: int = 50, pageToken: str = "") -> dict:
-        request = self._service.playlists().list(part="snippet", channelId=self.__channel_id, maxResults=maxResults, pageToken=pageToken)
+        request = self._service.playlists().list(part="snippet", channelId=self._channel_id, maxResults=maxResults, pageToken=pageToken)
         return loads(dumps(request.execute()))
 
     def _get_all_video_ids_on_playlist(self, playlist_id: str, maxResults: int = 50, pageToken: str = "") -> dict:
