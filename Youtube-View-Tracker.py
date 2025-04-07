@@ -16,22 +16,16 @@ class VideoInfoes(GoogleAuth):
         pageToken = ""
         while pageToken is not None:
             results = self._search_videos(pageToken=pageToken)
-            video_infoes = concat(
-                [
-                    video_infoes,
-                    DataFrame(
-                        [[video["id"]["videoId"], video["id"]["kind"], video["snippet"]["title"]] for video in results["items"]],
-                        columns=["id", "type", "title"],
-                    ),
-                ],
-                ignore_index=True,
+            data = DataFrame(
+                [[video["id"]["videoId"], video["id"]["kind"], video["snippet"]["title"]] for video in results["items"]],
+                columns=["id", "type", "title"],
             )
+            video_infoes = concat([video_infoes, data], ignore_index=True)
             pageToken = results.get("nextPageToken", None)
 
         if save_flag:
             if exists(video_ids_file):
-                before = read_csv(video_ids_file)
-                video_infoes = concat([before, video_infoes]).drop_duplicates(subset="id", keep="last")
+                video_infoes.drop_duplicates(subset="id", keep="last", inplace=True)
             video_infoes.to_csv(video_ids_file, index=False, encoding="UTF-8")
         return video_infoes
 
@@ -42,22 +36,16 @@ class VideoInfoes(GoogleAuth):
         pageToken = ""
         while pageToken is not None:
             results = self._search_playlists(pageToken=pageToken)
-            playlist_infoes = concat(
-                [
-                    playlist_infoes,
-                    DataFrame(
-                        [[playlist["id"], playlist["kind"], playlist["snippet"]["title"]] for playlist in results["items"]],
-                        columns=["id", "type", "title"],
-                    ),
-                ],
-                ignore_index=True,
+            data = DataFrame(
+                [[playlist["id"], playlist["kind"], playlist["snippet"]["title"]] for playlist in results["items"]],
+                columns=["id", "type", "title"],
             )
+            playlist_infoes = concat([playlist_infoes, data], ignore_index=True)
             pageToken = results.get("nextPageToken", None)
 
         if save_flag:
             if exists(playlist_ids_file):
-                before = read_csv(playlist_ids_file)
-                playlist_infoes = concat([before, playlist_infoes]).drop_duplicates(subset="id", keep="last")
+                playlist_infoes.drop_duplicates(subset="id", keep="last", inplace=True)
             playlist_infoes.to_csv(playlist_ids_file, index=False, encoding="UTF-8")
         return playlist_infoes
 
@@ -69,22 +57,15 @@ class VideoInfoes(GoogleAuth):
             pageToken = ""
             while pageToken is not None:
                 results = self._get_all_video_ids_on_playlist(playlist_id=playlist_id, pageToken=pageToken)
-                video_infoes = concat(
-                    [
-                        video_infoes,
-                        DataFrame(
-                            [[video["contentDetails"]["videoId"], video["kind"], ""] for video in results["items"]],
-                            columns=["id", "type", "title"],
-                        ),
-                    ],
-                    ignore_index=True,
+                data = DataFrame(
+                    [[video["contentDetails"]["videoId"], video["kind"], ""] for video in results["items"]], columns=["id", "type", "title"]
                 )
+                video_infoes = concat([video_infoes, data], ignore_index=True)
                 pageToken = results.get("nextPageToken", None)
 
         if save_flag:
             if exists(video_ids_file):
-                before = read_csv(video_ids_file)
-                video_infoes = concat([before, video_infoes]).drop_duplicates(subset="id", keep="last")
+                video_infoes.drop_duplicates(subset="id", keep="last", inplace=True)
             video_infoes.to_csv(video_ids_file, index=False, encoding="UTF-8")
         return video_infoes
 
@@ -135,20 +116,15 @@ class VideoInfoes(GoogleAuth):
 
     def add_video_infoes(self, video_ids: Series, views_file: str) -> None:
         date = strftime("%Y/%m/%d", localtime())
-        new_views = DataFrame([], columns=["video_id", "title", date])
+        new_views = DataFrame(columns=["video_id", "title", date])
 
         for start_index in range(0, len(video_ids), 50):
             video_infoes = self._get_video_infoes(video_id=",".join(video_ids[start_index : start_index + 50]))
-            new_views = concat(
-                [
-                    new_views,
-                    DataFrame(
-                        [[video["id"], video["snippet"]["title"], video["statistics"]["viewCount"]] for video in video_infoes["items"]],
-                        columns=["video_id", "title", date],
-                    ),
-                ],
-                ignore_index=True,
+            data = DataFrame(
+                [[video["id"], video["snippet"]["title"], video["statistics"]["viewCount"]] for video in video_infoes["items"]],
+                columns=["video_id", "title", date],
             )
+            new_views = concat([new_views, data], ignore_index=True)
 
         if exists(views_file):
             before = read_csv(views_file).replace(0, None)
